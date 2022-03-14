@@ -11,18 +11,7 @@ import {
     BackButton,
     ActionButton,
     SelectSearch,
-    InfoItemHorizontal,
-    ReadButton,
-    UpdateButton,
-    DeleteButton,
-    Td,
-    Th,
-    TBody,
-    Tr,
-    TdFixed,
-    Table,
-    THead,
-    ThFixed
+    InfoItemHorizontal
 } from 'components'
 import { DateConvert } from 'utilities'
 
@@ -199,7 +188,7 @@ const CreateKegiatan = ({setNavbarTitle}) => {
                     validationSchema={formValidation}
                     onSubmit={formSubmit}
                   >
-                    {({ values, errors, touched, isSubmitting, setValues, setFieldValue, handleChange, handleSubmit }) => (
+                    {({ values, errors, touched, isSubmitting, handleBlur, setFieldValue, handleChange, handleSubmit }) => (
                       <form onSubmit={handleSubmit}>
                         <Row>
                             <Col lg="6">
@@ -262,13 +251,7 @@ const CreateKegiatan = ({setNavbarTitle}) => {
                                     placeholder="Pilih penanggung jawab"
                                     option={penanggungJawab}
                                     defaultValue={values.data_penanggung_jawab}
-                                    onChange={(val) => {
-                                        setValues({
-                                          ...values,
-                                          label: val.label,
-                                          data_penanggung_jawab: val.data_penanggung_jawab
-                                        })
-                                      }}
+                                    onBlur={handleBlur}
                                     error={errors.penanggung_jawab && touched.penanggung_jawab && true}
                                     errorText={errors.penanggung_jawab && touched.penanggung_jawab && true}
                                 />
@@ -282,16 +265,15 @@ const CreateKegiatan = ({setNavbarTitle}) => {
                                     name='periode_mulai'
                                     selected={values.periode_mulai ? new Date(values.periode_mulai) : ''}
                                     onChange={(date) => {
-                                        const newDate = DateConvert(new Date(date)).default;
-                                        setFieldValue('periode_mulai', newDate)
-                                      }}
+                                            const newDate = DateConvert(new Date(date)).default;
+                                            setFieldValue('periode_mulai', newDate)
+                                          }}
                                     placeholderText="Pilih periode mulai"
                                     error={errors.periode_mulai && touched.periode_mulai && true}
                                     errorText={errors.periode_mulai}
                                 />
                             </Col>
                             <Col lg="3">
-                                {/* Belum Selesai */}
                                 <DatePicker
                                     showMonthYearPicker
                                     showTwoColumnMonthYearPicker
@@ -300,9 +282,9 @@ const CreateKegiatan = ({setNavbarTitle}) => {
                                     name='periode_selesai'
                                     selected={values.periode_selesai ? new Date(values.periode_selesai) : ''}
                                     onChange={(date) => {
-                                        const newDate = DateConvert(new Date(date)).default;
-                                        setFieldValue('periode_selesai', newDate)
-                                      }}
+                                            const newDate = DateConvert(new Date(date)).default;
+                                            setFieldValue('periode_selesai', newDate)
+                                          }}
                                     placeholderText="Pilih periode selesai"
                                     error={errors.periode_selesai && touched.periode_selesai && true}
                                     errorText={errors.periode_selesai}
@@ -316,13 +298,7 @@ const CreateKegiatan = ({setNavbarTitle}) => {
                                     placeholder="Pilih jenis anggaran"
                                     option={jenisAnggaran}
                                     defaultValue={values.jenis_anggaran}
-                                    onChange={(val) => {
-                                        setValues({
-                                          ...values,
-                                          label: val.label,
-                                          jenis_anggaran: val.jenis_anggaran
-                                        })
-                                      }}
+                                    onBlur={handleBlur}
                                 />
                             </Col>
                             <Col md>
@@ -358,6 +334,7 @@ const CreateKegiatan = ({setNavbarTitle}) => {
                             text="Simpan Kegiatan"
                             className="px-3"
                             loading={isSubmitting}
+                            onClick={() => history.push('/anggaran/transaksi/kegiatan')}
                           />
                         </div>
                       </form>
@@ -366,41 +343,33 @@ const CreateKegiatan = ({setNavbarTitle}) => {
               </Container>
             </Card.Body>
           </Card>
-          <div>
-            <Table>
-              <THead>
-                <Tr>
-                  <ThFixed>No</ThFixed>
-                  <Th>Aksi</Th>
-                  <Th>Status</Th>
-                  <Th>Tanggal Pengajuan</Th>
-                  <Th>Nama Kegiatan</Th>
-                  <Th>Program</Th>
-                  <Th>Unit Organisasi</Th>
-                </Tr>
-              </THead>
-              <TBody>
-                <Tr>
-                <TdFixed textCenter>{state.data.id}</TdFixed>
-                <Td className='d-flex justify-content-center pt-2 pb-2'>
-                    <ReadButton className='mr-2' />
-                    <UpdateButton />
-                    <DeleteButton className='ml-2' />
-                </Td>
-                <Td textCenter>{state.data.status ?? '-'}</Td>
-                <Td>{state.data.tgl_pengajuan ?? '-'}</Td>
-                <Td>{state.data.kegiatan}</Td>
-                <Td>{state.data.nama_program}</Td>
-                <Td>{state.data.unit_organisasi}</Td>
-                </Tr>
-              </TBody>
-            </Table>
-          </div>
     </div>
   )
 }
 
 export default CreateKegiatan
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // const mapingJenisAnggaran = (jenisAnggaran) => {
     //     jenisAnggaran.map(val => {
@@ -422,3 +391,19 @@ export default CreateKegiatan
     //         setPenanggungJawab(mapingPenanggungJawab)
     //     })
     // }
+
+    // onChange={(val) => {
+    //     setValues({ 
+    //       ...values,
+    //       label: val.label,
+    //       jenis_anggaran: val.jenis_anggaran
+    //     })
+    //   }}
+
+    //onChange={(val) => {
+    //     setValues({
+    //       ...values,
+    //       label: val.label,
+    //       data_penanggung_jawab: val.data_penanggung_jawab
+    //     })
+    //   }}
