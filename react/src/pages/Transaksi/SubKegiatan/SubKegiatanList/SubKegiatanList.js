@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import {Row, Col} from 'react-bootstrap'
 import { useHistory } from 'react-router-dom'
 import {
@@ -8,6 +8,23 @@ import {
 } from 'components'
 
 const SubKegiatanList = ({setNavbarTitle}) => {
+//FAKE API
+  const getDataJenisAnggaran = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve([])
+        reject(
+            <DataStatus text='Tidak Ada Data' />
+        )
+    }, 900)
+})
+getDataJenisAnggaran()
+    .then(val => console.log(val))
+    .catch(<DataStatus text='Tidak Ada Data' />)
+    .finally(() => {
+        setIsLoading(false)
+});
+//STATE
+  const [isLoading, setIsLoading] = useState(true)
 //USE HISTORY
   const history = useHistory()
 //USE EFFECT
@@ -25,7 +42,11 @@ const SubKegiatanList = ({setNavbarTitle}) => {
             <CreateButton onClick={() => history.push('/anggaran/transaksi/sub-kegiatan/kegiatan')}  />
         </Col>
       </Row>
-      <DataStatus text='Tidak Ada Data'/>
+      {
+        isLoading === true
+        ? <DataStatus loading={true} text='Memuat Data...' />
+        : <DataStatus text='Tidak Ada Data'/>
+      }
     </div>
   )
 }

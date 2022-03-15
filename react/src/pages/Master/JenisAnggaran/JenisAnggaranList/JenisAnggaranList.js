@@ -29,27 +29,50 @@ import {
 } from 'components'
 
 const JenisAnggaranList = ({setNavbarTitle}) => {
+//TITLE
+    const title = 'Jenis Anggaran'
+//FAKE API
+    const getDataJenisAnggaran = () => new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve([
+                {
+                    id: 1,
+                    kode: '02',
+                    nama_jenis_anggaran: 'Operasional',
+                    keterangan: 'Jenis Anggaran Operasional',
+                    checked: false
+                },
+                {
+                    id: 2,
+                    kode: '01',
+                    nama_jenis_anggaran: 'Modal',
+                    keterangan: 'Modal',
+                    checked: false
+                }
+            ])
+            reject(
+                <DataStatus text='Tidak Ada Data' />
+            )
+        }, 900)
+    })
+    getDataJenisAnggaran()
+        .then(val => {setData(val)})
+        .catch(() => {
+            setTextAlert({
+                variant: "danger",
+                text: "Data gagal dimuat",
+            });
+            setAlertShow(true);
+        })
+        .finally(() => {
+            setIsLoading(false)
+    });
 //USE EFFECT
 useEffect(() => {
     setNavbarTitle('Jenis Anggaran')
   }, [setNavbarTitle])
 //DATA STATE
-    const [dataUser, setDataUser] = useState([
-        {
-            id: 1,
-            kode: '02',
-            nama_jenis_anggaran: 'Operasional',
-            keterangan: 'Jenis Anggaran Operasional',
-            checked: false
-        },
-        {
-            id: 2,
-            kode: '01',
-            nama_jenis_anggaran: 'Modal',
-            keterangan: 'Modal',
-            checked: false
-        }
-    ])
+    const [data, setData] = useState([])
     const [isUpdate, setIsUpdate] = useState(false)
     const [updateIndex, setUpdateIndex] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
@@ -60,6 +83,7 @@ useEffect(() => {
 //ALERT STATE
     const [alertShow, setAlertShow] = useState(false)
     const [textAlert, setTextAlert] = useState({
+        variant:'primary',
         text:''
     })
 //MODAL STATE
@@ -78,8 +102,6 @@ useEffect(() => {
         nama_jenis_anggaran:'',
         keterangan:''
     })
-//TITLE
-    const title = 'Jenis Anggaran'
 //CREATE DATA
     const createSubmit = (values) => {
         const creatingName = {
@@ -88,8 +110,8 @@ useEffect(() => {
             nama_jenis_anggaran: values.nama_jenis_anggaran,
             keterangan: values.keterangan
         }
-        const saveName = [...dataUser, creatingName]
-        setDataUser(saveName)
+        const saveName = [...data, creatingName]
+        setData(saveName)
         setCreateShow(false)
         setAlertShow(true)
         setTextAlert({
@@ -103,14 +125,14 @@ useEffect(() => {
     }
 //UPDATE DATA
     const updateData = (id) => {
-        const finds = dataUser.find((datas) => datas.id === id)
+        const finds = data.find((datas) => datas.id === id)
         setIsUpdate(true)
         setUpdateIndex(id)
         setCreate(finds)
         setUpdateShow(true)
     }
     const updateSubmit = (values) => {
-        const maping = dataUser.map((val) => {
+        const maping = data.map((val) => {
             if(val.id === updateIndex){
                 return{
                     id: val.id,
@@ -124,7 +146,7 @@ useEffect(() => {
         setIsUpdate(false)
         setAlertShow(true)
         setUpdateIndex('')
-        setDataUser(maping)
+        setData(maping)
         setUpdateShow(false)
         setTextAlert({
             text:'Update Data Berhasil'
@@ -137,12 +159,12 @@ useEffect(() => {
     }
 //DELETE DATA
     const deleteDetail = (id) => {
-        const delete_detail = dataUser.find((datas) => datas.id === id)
+        const delete_detail = data.find((datas) => datas.id === id)
         setCreate(delete_detail)
     }
     const deleteSubmit = (id) => {
-        const filters = dataUser.filter(datas => datas.id !== id)
-        setDataUser(filters)
+        const filters = data.filter(datas => datas.id !== id)
+        setData(filters)
         setDeleteShow(false)
         setAlertShow(true)
         setTextAlert({
@@ -153,17 +175,17 @@ useEffect(() => {
     const handleSearch = (e) => {
         if (e.target.value === ''){
             window.location.reload(true)
-            const search_data = dataUser
-            setDataUser(search_data)
-            setDataUser(dataUser)
+            const search_data = data
+            setData(search_data)
+            setData(data)
             return
         }
-        const searchResult = dataUser.filter(datas => 
+        const searchResult = data.filter(datas => 
             datas.kode.toLowerCase().startsWith(e.target.value.toLowerCase()) ||
             datas.nama_jenis_anggaran.toLowerCase().startsWith(e.target.value.toLowerCase()) ||
             datas.keterangan.toLowerCase().startsWith(e.target.value.toLowerCase())
         )
-        setDataUser(searchResult);
+        setData(searchResult);
     }
 //FORMIK
     const formValues = {
@@ -191,7 +213,7 @@ useEffect(() => {
     })
 //SWITCH
     const toggler = (id) => {
-        const main_toggler = dataUser.map((datas) => {
+        const main_toggler = data.map((datas) => {
             if(datas.id === id) {
                 return{
                     ...datas, 
@@ -202,14 +224,14 @@ useEffect(() => {
             }
             return datas
         })
-        setDataUser(main_toggler)
+        setData(main_toggler)
         setTextAlert({
             text: "Ubah status data berhasil",
         })
         setAlertShow(true);
     } 
 //PAGINATION
-    const dataLength = dataUser.length
+    const dataLength = data.length
 
   return (
     <div>
@@ -222,11 +244,14 @@ useEffect(() => {
             </Col>
         </Row>
         {
-//Loading Belum Fix
-            isLoading === false
+            isLoading === true
             ? <DataStatus loading={true} text='Memuat Data...' />
             : <div>
-                <CreateModal title={title} show={createShow} onHide={() => setCreateShow(false)}>
+                <CreateModal 
+                    title={title} 
+                    show={createShow} 
+                    onHide={() => setCreateShow(false)}>
+
                     <Formik
                         initialValues={formValues}
                         validationSchema={formValidation}
@@ -281,7 +306,11 @@ useEffect(() => {
                         )}
                     </Formik>
                 </CreateModal>
-                <UpdateModal title={title} show={updateShow} onHide={() => setUpdateShow(false)}>
+                <UpdateModal 
+                    title={title} 
+                    show={updateShow} 
+                    onHide={() => setUpdateShow(false)}>
+
                     <Formik
                         initialValues={formValues}
                         validationSchema={formValidation}
@@ -339,8 +368,7 @@ useEffect(() => {
                 <DeleteModal 
                     onConfirm={() => deleteSubmit(deleteIndex)} 
                     title={title} show={deleteShow} 
-                    onHide={() => setDeleteShow(false)}
-                >
+                    onHide={() => setDeleteShow(false)}>
                     <span>Nama Jenis Anggaran : {create.nama_jenis_anggaran}</span>
                 </DeleteModal>
 
@@ -363,7 +391,7 @@ useEffect(() => {
                     </THead>
                     <TBody>
                         {
-                            dataUser.map((datas, index) => {
+                            data.map((datas, index) => {
                                 return(
                                     <Tr key={index}>
                                         <Td className='text-center'>{index + 1}</Td>

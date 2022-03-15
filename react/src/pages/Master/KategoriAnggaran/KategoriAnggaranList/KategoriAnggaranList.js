@@ -29,80 +29,103 @@ import {
 } from 'components'
 
 const KategoriAnggaranList = ({setNavbarTitle}) => {
+//TITLE
+    const title = 'Jenis Anggaran'
+//FAKE API
+    const getKategoriAnggaranList = () => new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve([
+                {
+                    id: 1,
+                    nama_kategori_anggaran: 'Kendaraan',
+                    keterangan: '-',
+                    checked: false
+                },
+                {
+                    id: 2,
+                    nama_kategori_anggaran: 'Transportasi dan Akomodasi',
+                    keterangan: '-',
+                    checked: false
+                },
+                {
+                    id: 3,
+                    nama_kategori_anggaran: 'BPJS Kesehatan',
+                    keterangan: 'BPJS Kesehatan Pegawai',
+                    checked: false
+                },
+                {
+                    id: 4,
+                    nama_kategori_anggaran: 'Peralatan Kantor',
+                    keterangan: 'Peralatan kantor itdc nu',
+                    checked: false
+                },
+                {
+                    id: 5,
+                    nama_kategori_anggaran: 'Bangunan',
+                    keterangan: 'Bangunan ITDC NU',
+                    checked: false
+                },
+                {
+                    id: 6,
+                    nama_kategori_anggaran: 'Perlengkapan',
+                    keterangan: 'Perlengkapan Kantor ITDCNU',
+                    checked: false
+                },
+                {
+                    id: 7,
+                    nama_kategori_anggaran: 'Kendaraan',
+                    keterangan: 'Kendaraan Operasional ITDC NU',
+                    checked: false
+                },
+                {
+                    id: 8,
+                    nama_kategori_anggaran: 'Listrik',
+                    keterangan: 'Listrik PLN',
+                    checked: false
+                },
+                {
+                    id: 9,
+                    nama_kategori_anggaran: 'BPJS Ketenagakerja',
+                    keterangan: 'BPJS Ketenagakerja',
+                    checked: false
+                },
+                {
+                    id: 10,
+                    nama_kategori_anggaran: 'Internet',
+                    keterangan: 'Biaya Internet',
+                    checked: false
+                },
+            ])
+            reject(
+                <DataStatus text='Tidak Ada Data' />
+            )
+        }, 900)
+    })
+    getKategoriAnggaranList()
+        .then(val => {setData(val)})
+        .catch(() => {
+            setTextAlert({
+                variant: "danger",
+                text: "Data gagal dimuat",
+            });
+            setAlertShow(true);
+        })
+        .finally(() => {
+            setIsLoading(false)
+        });
 //USE EFFECT
 useEffect(() => {
     setNavbarTitle('Kategori Anggaran')
   }, [setNavbarTitle])
 //DATA STATE
-    const [dataUser, setDataUser] = useState([
-        {
-            id: 1,
-            nama_kategori_anggaran: 'Kendaraan',
-            keterangan: '-',
-            checked: false
-        },
-        {
-            id: 2,
-            nama_kategori_anggaran: 'Transportasi dan Akomodasi',
-            keterangan: '-',
-            checked: false
-        },
-        {
-            id: 3,
-            nama_kategori_anggaran: 'BPJS Kesehatan',
-            keterangan: 'BPJS Kesehatan Pegawai',
-            checked: false
-        },
-        {
-            id: 4,
-            nama_kategori_anggaran: 'Peralatan Kantor',
-            keterangan: 'Peralatan kantor itdc nu',
-            checked: false
-        },
-        {
-            id: 5,
-            nama_kategori_anggaran: 'Bangunan',
-            keterangan: 'Bangunan ITDC NU',
-            checked: false
-        },
-        {
-            id: 6,
-            nama_kategori_anggaran: 'Perlengkapan',
-            keterangan: 'Perlengkapan Kantor ITDCNU',
-            checked: false
-        },
-        {
-            id: 7,
-            nama_kategori_anggaran: 'Kendaraan',
-            keterangan: 'Kendaraan Operasional ITDC NU',
-            checked: false
-        },
-        {
-            id: 8,
-            nama_kategori_anggaran: 'Listrik',
-            keterangan: 'Listrik PLN',
-            checked: false
-        },
-        {
-            id: 9,
-            nama_kategori_anggaran: 'BPJS Ketenagakerja',
-            keterangan: 'BPJS Ketenagakerja',
-            checked: false
-        },
-        {
-            id: 10,
-            nama_kategori_anggaran: 'Internet',
-            keterangan: 'Biaya Internet',
-            checked: false
-        },
-    ])
+    const [data, setData] = useState([])
     const [isUpdate, setIsUpdate] = useState(false)
     const [updateIndex, setUpdateIndex] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
 //PAGINATION STATE
     const [page, setPage] = useState(1);
-    const totalPage = 1
     const [itemPerPages, setItemPerPages] = useState(4);
+    const totalPage = 1
 //ALERT STATE
     const [alertShow, setAlertShow] = useState(false)
     const [textAlert, setTextAlert] = useState({
@@ -124,8 +147,6 @@ useEffect(() => {
         nama_jenis_anggaran:'',
         keterangan:''
     })
-//TITLE
-    const title = 'Jenis Anggaran'
 //CREATE DATA
     const createSubmit = (values) => {
         const creatingName = {
@@ -134,8 +155,8 @@ useEffect(() => {
             nama_jenis_anggaran: values.nama_jenis_anggaran,
             keterangan: values.keterangan
         }
-        const saveName = [...dataUser, creatingName]
-        setDataUser(saveName)
+        const saveName = [...data, creatingName]
+        setData(saveName)
         setCreateShow(false)
         setAlertShow(true)
         setTextAlert({
@@ -149,14 +170,14 @@ useEffect(() => {
     }
 //UPDATE DATA
     const updateData = (id) => {
-        const finds = dataUser.find((datas) => datas.id === id)
+        const finds = data.find((datas) => datas.id === id)
         setIsUpdate(true)
         setUpdateIndex(id)
         setCreate(finds)
         setUpdateShow(true)
     }
     const updateSubmit = (values) => {
-        const maping = dataUser.map((val) => {
+        const maping = data.map((val) => {
             if(val.id === updateIndex){
                 return{
                     id: val.id,
@@ -170,7 +191,7 @@ useEffect(() => {
         setIsUpdate(false)
         setAlertShow(true)
         setUpdateIndex('')
-        setDataUser(maping)
+        setData(maping)
         setUpdateShow(false)
         setTextAlert({
             text:'Update Data Berhasil'
@@ -183,12 +204,12 @@ useEffect(() => {
     }
 //DELETE DATA
     const deleteDetail = (id) => {
-        const delete_detail = dataUser.find((datas) => datas.id === id)
+        const delete_detail = data.find((datas) => datas.id === id)
         setCreate(delete_detail)
     }
     const deleteSubmit = (id) => {
-        const filters = dataUser.filter(datas => datas.id !== id)
-        setDataUser(filters)
+        const filters = data.filter(datas => datas.id !== id)
+        setData(filters)
         setDeleteShow(false)
         setAlertShow(true)
         setTextAlert({
@@ -199,17 +220,17 @@ useEffect(() => {
     const handleSearch = (e) => {
         if (e.target.value === ''){
             window.location.reload(true)
-            const search_data = dataUser
-            setDataUser(search_data)
-            setDataUser(dataUser)
+            const search_data = data
+            setData(search_data)
+            setData(data)
             return
         }
-        const searchResult = dataUser.filter(datas => 
+        const searchResult = data.filter(datas => 
             datas.kode.toLowerCase().startsWith(e.target.value.toLowerCase()) ||
             datas.nama_jenis_anggaran.toLowerCase().startsWith(e.target.value.toLowerCase()) ||
             datas.keterangan.toLowerCase().startsWith(e.target.value.toLowerCase())
         )
-        setDataUser(searchResult);
+        setData(searchResult);
     }
 //FORMIK
     const formValues = {
@@ -237,7 +258,7 @@ useEffect(() => {
     })
 //SWITCH
     const toggler = (id) => {
-        const main_toggler = dataUser.map((datas) => {
+        const main_toggler = data.map((datas) => {
             if(datas.id === id) {
                 return{
                     ...datas, 
@@ -248,19 +269,19 @@ useEffect(() => {
             }
             return datas
         })
-        setDataUser(main_toggler)
+        setData(main_toggler)
         setTextAlert({
             text: "Ubah status data berhasil",
         })
         setAlertShow(true);
     } 
 //PAGINATION
-    const dataLength = dataUser.length
+    const dataLength = data.length
 //REVERSE
 const reverse = (array) => {
   return array.map((item,idx) => array[array.length-1-idx])
   } 
-reverse(dataUser)
+reverse(data)
 
   return (
     <div>
@@ -273,11 +294,14 @@ reverse(dataUser)
             </Col>
         </Row>
         {
-//Loading Belum Fix
-            isLoading === false
+            isLoading === true
             ? <DataStatus loading={true} text='Memuat Data...' />
             : <div>
-                <CreateModal title={title} show={createShow} onHide={() => setCreateShow(false)}>
+                <CreateModal 
+                    title={title} 
+                    show={createShow} 
+                    onHide={() => setCreateShow(false)}>
+
                     <Formik
                         initialValues={formValues}
                         validationSchema={formValidation}
@@ -332,7 +356,11 @@ reverse(dataUser)
                         )}
                     </Formik>
                 </CreateModal>
-                <UpdateModal title={title} show={updateShow} onHide={() => setUpdateShow(false)}>
+                <UpdateModal 
+                    title={title} 
+                    show={updateShow} 
+                    onHide={() => setUpdateShow(false)}>
+
                     <Formik
                         initialValues={formValues}
                         validationSchema={formValidation}
@@ -390,8 +418,7 @@ reverse(dataUser)
                 <DeleteModal 
                     onConfirm={() => deleteSubmit(deleteIndex)} 
                     title={title} show={deleteShow} 
-                    onHide={() => setDeleteShow(false)}
-                >
+                    onHide={() => setDeleteShow(false)}>
                     <span>Nama Jenis Anggaran : {create.nama_jenis_anggaran}</span>
                 </DeleteModal>
 
@@ -413,7 +440,7 @@ reverse(dataUser)
                     </THead>
                     <TBody>
                         {
-                            reverse(dataUser).map((datas, index) => {
+                            reverse(data).map((datas, index) => {
                                 return(
                                     <Tr key={index}>
                                         <Td className='text-center'>{index + 1}</Td>

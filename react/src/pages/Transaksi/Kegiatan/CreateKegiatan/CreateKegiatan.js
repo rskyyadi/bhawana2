@@ -342,7 +342,7 @@ const CreateKegiatan = ({setNavbarTitle}) => {
                   </Formik>
               </Container>
             </Card.Body>
-          </Card>
+        </Card>
     </div>
   )
 }

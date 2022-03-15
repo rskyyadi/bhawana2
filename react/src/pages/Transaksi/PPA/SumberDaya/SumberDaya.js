@@ -11,6 +11,7 @@ import {
   Input,
   ThFixed,
   TdFixed,
+  DataStatus,
   DatePicker,
   Pagination,
   InputSearch,
@@ -21,6 +22,30 @@ import {
 } from 'components'
 
 const SumberDaya = ({setNavbarTitle}) => {
+//FAKE API
+  const getDataJenisAnggaran = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve([
+          {
+            id: 1,
+            program: '',
+            kegiatan: '',
+            sumber_daya: 'test',
+            bulan: 'undefined NaN',
+            tgl_ppa: '14/03/2022'
+          }
+        ])
+        reject(
+            <DataStatus text='Tidak Ada Data' />
+        )
+    }, 2000)
+})
+getDataJenisAnggaran()
+    .then(val => {setData(val)})
+    .catch(<DataStatus loading={true} text='Memuat Data...' />)
+    .finally(() => {
+        setIsLoading(false)
+});
 //MODAL
   const [show, setShow] = useState(false)
 //USE HISTORY
@@ -30,22 +55,14 @@ const SumberDaya = ({setNavbarTitle}) => {
     setNavbarTitle('Sumber Daya PPA')
   }, [setNavbarTitle])
 //DATA
-  const [dataUser, setDataUser] = useState([
-    {
-        id: 1,
-        program: '',
-        kegiatan: '',
-        sumber_daya: 'test',
-        bulan: 'undefined NaN',
-        tgl_ppa: '14/03/2022'
-    }
-  ])
+  const [data, setData] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 //PAGINATION STATE
   const [page, setPage] = useState(1);
   const totalPage = 1
   const [itemPerPages, setItemPerPages] = useState(4);
 //PAGINATION
-  const dataLength = dataUser.length
+  const dataLength = data.length
 
   return (
     <div>
@@ -56,55 +73,60 @@ const SumberDaya = ({setNavbarTitle}) => {
             <Col md-6 className='text-right'>
                 <CreateButton />
             </Col>
-        </Row>
-
-        <Table>
-          <THead>
-            <Tr>
-              <ThFixed>No</ThFixed>
-              <Th>Program</Th>
-              <Th>Kegiatan</Th>
-              <Th>Sumber Daya</Th>
-              <Th>Bulan</Th>
-              <ThFixed>Aksi</ThFixed>
-            </Tr>
-          </THead>
-          <TBody>
-            {
-              dataUser.map((datas, index) => {
-                return(
-                  <Tr key={index}>
-                    <TdFixed>{index + 1}</TdFixed>
-                    <Td>{datas.program}</Td>
-                    <Td>{datas.kegiatan}</Td>
-                    <Td>{datas.sumber_daya}</Td>
-                    <Td>{datas.bulan}</Td>
-                    <TdFixed text-center>
-                      <ActionButton size='sm' onClick={() => setShow(true)} >
-                        PPA
-                      </ActionButton>
-                    </TdFixed>
-                  </Tr>
-                )
-              })
-            }
-          </TBody>
-        </Table>
-        <Pagination 
-          //Page Number
-          dataNumber={page * itemPerPages - itemPerPages + 1} 
-          //Data/Page
-          dataPage={dataLength < itemPerPages ? dataLength : page * itemPerPages} 
-          //Data Length
-          dataCount={dataLength} 
-          
-          currentPage={page}
-          totalPage={totalPage}
-          onPaginationChange={() => setPage(+1)}
-          
-          dataLength={itemPerPages}
-          onDataLengthChange={(e) => setItemPerPages(e.target.value)}
-        />
+      </Row>
+      {
+        isLoading === true 
+        ? <DataStatus loading={true} text='Memuat Data...' />
+        : <div>
+            <Table>
+              <THead>
+                <Tr>
+                  <ThFixed>No</ThFixed>
+                  <Th>Program</Th>
+                  <Th>Kegiatan</Th>
+                  <Th>Sumber Daya</Th>
+                  <Th>Bulan</Th>
+                  <ThFixed>Aksi</ThFixed>
+                </Tr>
+              </THead>
+              <TBody>
+                {
+                  data.map((datas, index) => {
+                    return(
+                      <Tr key={index}>
+                        <TdFixed>{index + 1}</TdFixed>
+                        <Td>{datas.program}</Td>
+                        <Td>{datas.kegiatan}</Td>
+                        <Td>{datas.sumber_daya}</Td>
+                        <Td>{datas.bulan}</Td>
+                        <TdFixed text-center>
+                          <ActionButton size='sm' onClick={() => setShow(true)} >
+                            PPA
+                          </ActionButton>
+                        </TdFixed>
+                      </Tr>
+                    )
+                  })
+                }
+              </TBody>
+            </Table>
+            <Pagination 
+              //Page Number
+              dataNumber={page * itemPerPages - itemPerPages + 1} 
+              //Data/Page
+              dataPage={dataLength < itemPerPages ? dataLength : page * itemPerPages} 
+              //Data Length
+              dataCount={dataLength} 
+              
+              currentPage={page}
+              totalPage={totalPage}
+              onPaginationChange={() => setPage(+1)}
+              
+              dataLength={itemPerPages}
+              onDataLengthChange={(e) => setItemPerPages(e.target.value)}
+            />
+          </div>
+      }
 
         <CreateModal
           show={show}
