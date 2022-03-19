@@ -4,6 +4,7 @@ import {nanoid} from 'nanoid'
 import {Formik} from 'formik'
 import * as Yup from 'yup'
 import {Modal} from 'react-bootstrap'
+import {TableNumber} from 'utilities'
 import {
     Th, 
     Tr, 
@@ -31,6 +32,36 @@ import {
 const JenisAnggaranList = ({setNavbarTitle}) => {
 //TITLE
     const title = 'Jenis Anggaran'
+//DATA STATE
+    const [data, setData] = useState([])
+    const [isUpdate, setIsUpdate] = useState(false)
+    const [updateIndex, setUpdateIndex] = useState(null)
+    const [isLoading, setIsLoading] = useState(true)
+//PAGE STATE
+    const [page, setPage] = useState(1)
+    const [dataCount, setDataCount] = useState(0)
+    const [dataLength, setDataLength] = useState(10)
+//ALERT STATE
+    const [alertShow, setAlertShow] = useState(false)
+    const [textAlert, setTextAlert] = useState({
+        variant:'primary',
+        text:''
+    })
+//MODAL STATE
+    const [createShow, setCreateShow] = useState(false)
+    const [updateShow, setUpdateShow] = useState(false)
+    const [deleteIndex, setDeleteIndex] = useState([])
+    const [deleteShow, setDeleteShow] = useState(false)
+    const deleteMasuk = (id) => {
+        setDeleteShow(true)
+        setDeleteIndex(id)
+    }
+//CREATE DATA STATE
+    const [create, setCreate] = useState({
+        kode:'',
+        nama_jenis_anggaran:'',
+        keterangan:''
+    })
 //FAKE API
     const getDataJenisAnggaran = () => new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -55,8 +86,14 @@ const JenisAnggaranList = ({setNavbarTitle}) => {
             )
         }, 900)
     })
-    getDataJenisAnggaran()
-        .then(val => {setData(val)})
+//USE EFFECT
+    useEffect(() => {
+        setNavbarTitle('Jenis Anggaran')
+        getDataJenisAnggaran()
+        .then(val => {
+            setData(val)
+            setDataCount(val.length)
+        })
         .catch(() => {
             setTextAlert({
                 variant: "danger",
@@ -66,42 +103,15 @@ const JenisAnggaranList = ({setNavbarTitle}) => {
         })
         .finally(() => {
             setIsLoading(false)
-    });
-//USE EFFECT
-useEffect(() => {
-    setNavbarTitle('Jenis Anggaran')
-  }, [setNavbarTitle])
-//DATA STATE
-    const [data, setData] = useState([])
-    const [isUpdate, setIsUpdate] = useState(false)
-    const [updateIndex, setUpdateIndex] = useState(null)
-    const [isLoading, setIsLoading] = useState(true)
-//PAGINATION STATE
-    const [page, setPage] = useState(1);
-    const totalPage = 1
-    const [itemPerPages, setItemPerPages] = useState(4);
-//ALERT STATE
-    const [alertShow, setAlertShow] = useState(false)
-    const [textAlert, setTextAlert] = useState({
-        variant:'primary',
-        text:''
-    })
-//MODAL STATE
-    const [createShow, setCreateShow] = useState(false)
-    const [updateShow, setUpdateShow] = useState(false)
-    const [deleteIndex, setDeleteIndex] = useState([])
-//MODAL DELETE STATE
-    const [deleteShow, setDeleteShow] = useState(false)
-    const deleteMasuk = (id) => {
-        setDeleteShow(true)
-        setDeleteIndex(id)
-    }
-//CREATE STATE
-    const [create, setCreate] = useState({
-        kode:'',
-        nama_jenis_anggaran:'',
-        keterangan:''
-    })
+        });
+    }, [setNavbarTitle])
+//PAGINATION
+    const totalData = data.length
+    const lastData = page * dataLength
+    const firstData = lastData - dataLength
+    const totalPage = data? data.length/dataLength : 0
+    const paginate = pageNumber => setPage(pageNumber)
+    const currentPosts = data.slice(firstData, lastData)
 //CREATE DATA
     const createSubmit = (values) => {
         const creatingName = {
@@ -112,16 +122,17 @@ useEffect(() => {
         }
         const saveName = [...data, creatingName]
         setData(saveName)
-        setCreateShow(false)
-        setAlertShow(true)
-        setTextAlert({
-            text:'Tambah Data Berhasil'
-        })
         setCreate({
             kode:'',
             nama_jenis_anggaran:'',
             keterangan:''
         })
+        setTextAlert({
+            variant: "primary",
+            text: "Tambah data berhasil!",
+        });
+        setCreateShow(false)
+        setAlertShow(true)
     }
 //UPDATE DATA
     const updateData = (id) => {
@@ -194,7 +205,6 @@ useEffect(() => {
         keterangan: isUpdate ? create.keterangan : '',
     }
     const formSubmit = (values) => {
-        console.log(values)
         if(isUpdate){
             updateSubmit(values)
         }else{
@@ -213,25 +223,21 @@ useEffect(() => {
     })
 //SWITCH
     const toggler = (id) => {
-        const main_toggler = data.map((datas) => {
+        const isToggle = data.map((datas) => {
             if(datas.id === id) {
                 return{
-                    ...datas, 
+                    ...datas,
                     checked: !datas.checked
                 }
-            }else{
-                setIsLoading(true)
             }
             return datas
         })
-        setData(main_toggler)
+        setData(isToggle)
+        setAlertShow(true)
         setTextAlert({
             text: "Ubah status data berhasil",
         })
-        setAlertShow(true);
-    } 
-//PAGINATION
-    const dataLength = data.length
+    }
 
   return (
     <div>
@@ -391,10 +397,10 @@ useEffect(() => {
                     </THead>
                     <TBody>
                         {
-                            data.map((datas, index) => {
+                            currentPosts.map((datas, index) => {
                                 return(
                                     <Tr key={index}>
-                                        <Td className='text-center'>{index + 1}</Td>
+                                        <Td className='text-center'>{TableNumber(page, dataLength, index)}</Td>
                                         <Td className='d-flex text-center'>
                                             <ButtonGroup size="sm" className="mr-1">
                                                 <UpdateButton onClick={() => updateData(datas.id)} />
@@ -403,7 +409,7 @@ useEffect(() => {
                                                 />
                                             </ButtonGroup>
                                             <Switch 
-                                                id={toString(index + 1)}
+                                                id={datas.id}
                                                 checked={datas.checked}
                                                 onChange={() => toggler(datas.id)}
                                             />
@@ -418,19 +424,17 @@ useEffect(() => {
                     </TBody>
                 </Table>
                 <Pagination 
-                    //Page Number
-                    dataNumber={page * itemPerPages - itemPerPages + 1} 
-                    //Data/Page
-                    dataPage={dataLength < itemPerPages ? dataLength : page * itemPerPages} 
-                    //Data Length
-                    dataCount={dataLength} 
-                    
+                    dataNumber={page * dataLength - dataLength + 1}
+                    dataPage={dataCount < dataLength ? totalData : page * dataLength}
+                    dataCount={dataCount} 
                     currentPage={page}
                     totalPage={totalPage}
-                    onPaginationChange={() => setPage(+1)}
-                    
-                    dataLength={itemPerPages}
-                    onDataLengthChange={(e) => setItemPerPages(e.target.value)}
+                    dataLength={dataLength}
+                    onPaginationChange={({selected}) => paginate(selected +1)}
+                    onDataLengthChange={(e) => {
+                    setDataLength(e.target.value)
+                    setPage(1)
+                    }}
                 />
             </div>
         }

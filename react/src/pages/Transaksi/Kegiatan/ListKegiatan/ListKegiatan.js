@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import {Row, Col} from 'react-bootstrap'
+import { TableNumber } from 'utilities'
 import {
   Tr,
   Th,
@@ -176,27 +177,35 @@ const ListKegiatan = ({setNavbarTitle}) => {
         )
     }, 900)
     })
-    getListKegiatan()
-        .then(val => {setData(val)})
-        .catch(<DataStatus loading={true} text='Memuat Data...' />)
-        .finally(() => {
-            setIsLoading(false)
-  });
 //USE EFFECT
   useEffect(() => {
     setNavbarTitle('Kegiatan')
+    getListKegiatan()
+    .then(val => {
+      setData(val)
+      setDataCount(val.length)
+    })
+    .catch(<DataStatus loading={true} text='Memuat Data...' />)
+    .finally(() => {
+          setIsLoading(false)
+    });
   }, [setNavbarTitle])
 //USE HISTORY
   const history = useHistory()
 //DATA LIST KEGIATAN
   const [data, setData] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-//PAGE
+//PAGE STATE
   const [page, setPage] = useState(1)
-  const totalPage = 1
-  const [itemPerPages, setItemPerPages] = useState(10);
+  const [dataCount, setDataCount] = useState(0)
+  const [dataLength, setDataLength] = useState(10)
 //PAGINATION
-  const dataLength = data.length
+  const lastData = page * dataLength;
+  const firstData = lastData - dataLength;
+  const currentPosts = data.slice(firstData, lastData);
+  const totalData = data.length
+  const totalPage = data? data.length/dataLength : 0
+  const paginate = pageNumber => setPage(pageNumber);
   
 
   return (
@@ -230,10 +239,10 @@ const ListKegiatan = ({setNavbarTitle}) => {
               </THead>
               <TBody>
                 {
-                  data.map((val, index) => {
+                  currentPosts.map((val, index) => {
                     return(
                       <Tr key={index}>
-                        <TdFixed textCenter>{index + 1}</TdFixed>
+                        <TdFixed textCenter>{TableNumber(page, dataLength, index)}</TdFixed>
                         <Td className='d-flex justify-content-center pt-2 pb-2'>
                           <ReadButton className='mr-2' />
                           <UpdateButton />
@@ -251,19 +260,17 @@ const ListKegiatan = ({setNavbarTitle}) => {
               </TBody>
             </Table>
             <Pagination 
-                //Page Number
-                dataNumber={page * itemPerPages - itemPerPages + 1} 
-                //Data/Page
-                dataPage={dataLength < itemPerPages ? dataLength : page * itemPerPages} 
-                //Data Length
-                dataCount={dataLength} 
-                
+                dataNumber={page * dataLength - dataLength + 1}
+                dataPage={dataCount < dataLength ? totalData : page * dataLength}
+                dataCount={dataCount} 
                 currentPage={page}
                 totalPage={totalPage}
-                onPaginationChange={() => setPage(+1)}
-                
-                dataLength={itemPerPages}
-                onDataLengthChange={(e) => setItemPerPages(e.target.value)}
+                dataLength={dataLength}
+                onPaginationChange={({selected}) => paginate(selected +1)}
+                onDataLengthChange={(e) => {
+                  setDataLength(e.target.value)
+                  setPage(1)
+                }}
             />
           </div>
         )

@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {Row, Col} from 'react-bootstrap'
 import { useHistory } from 'react-router-dom'
+import { TableNumber } from 'utilities'
 import {
   Td,
   Tr,
@@ -100,27 +101,35 @@ const PPA = ({setNavbarTitle}) => {
           )
       }, 900)
   })
-  getDataJenisAnggaran()
-      .then(val => {setData(val)})
-      .catch(<DataStatus loading={true} text='Memuat Data...' />)
-      .finally(() => {
-          setIsLoading(false)
-  });
 //USE HISTORY
   const history = useHistory()
 //USE EFFECT
   useEffect(() => {
     setNavbarTitle('PPA')
+    getDataJenisAnggaran()
+    .then(val => {
+      setData(val)
+      setDataCount(val.length)
+    })
+    .catch(<DataStatus loading={true} text='Memuat Data...' />)
+    .finally(() => {
+        setIsLoading(false)
+    })
   }, [setNavbarTitle])
 //DATA
   const [data, setData] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-//PAGINATION STATE
-  const [page, setPage] = useState(1);
-  const totalPage = 1
-  const [itemPerPages, setItemPerPages] = useState(4);
+//PAGE STATE
+  const [page, setPage] = useState(1)
+  const [dataCount, setDataCount] = useState(0)
+  const [dataLength, setDataLength] = useState(10)
 //PAGINATION
-  const dataLength = data.length
+  const lastData = page * dataLength;
+  const firstData = lastData - dataLength;
+  const currentPosts = data.slice(firstData, lastData);
+  const totalData = data.length
+  const totalPage = data? data.length/dataLength : 0
+  const paginate = pageNumber => setPage(pageNumber);
 
   return (
     <div>
@@ -153,10 +162,10 @@ const PPA = ({setNavbarTitle}) => {
                 </THead>
                 <TBody>
                   {
-                    data.map((datas, index) => {
+                    currentPosts.map((datas, index) => {
                       return(
                         <Tr key={index}>
-                          <TdFixed>{index + 1}</TdFixed>
+                          <TdFixed>{TableNumber(page, dataLength, index)}</TdFixed>
                           <TdFixed text-center>
                             <ReadButton />
                           </TdFixed>
@@ -175,19 +184,17 @@ const PPA = ({setNavbarTitle}) => {
                 </TBody>
               </Table>
               <Pagination 
-                //Page Number
-                dataNumber={page * itemPerPages - itemPerPages + 1} 
-                //Data/Page
-                dataPage={dataLength < itemPerPages ? dataLength : page * itemPerPages} 
-                //Data Length
-                dataCount={dataLength} 
-                
-                currentPage={page}
-                totalPage={totalPage}
-                onPaginationChange={() => setPage(+1)}
-                
-                dataLength={itemPerPages}
-                onDataLengthChange={(e) => setItemPerPages(e.target.value)}
+                  dataNumber={page * dataLength - dataLength + 1}
+                  dataPage={dataCount < dataLength ? totalData : page * dataLength}
+                  dataCount={dataCount} 
+                  currentPage={page}
+                  totalPage={totalPage}
+                  dataLength={dataLength}
+                  onPaginationChange={({selected}) => paginate(selected +1)}
+                  onDataLengthChange={(e) => {
+                    setDataLength(e.target.value)
+                    setPage(1)
+                  }}
               />
             </div>
         }

@@ -4,6 +4,7 @@ import {nanoid} from 'nanoid'
 import {Formik} from 'formik'
 import * as Yup from 'yup'
 import {Modal} from 'react-bootstrap'
+import { TableNumber } from 'utilities'
 import {
     Th, 
     Tr, 
@@ -101,8 +102,14 @@ const KategoriAnggaranList = ({setNavbarTitle}) => {
             )
         }, 900)
     })
-    getKategoriAnggaranList()
-        .then(val => {setData(val)})
+//USE EFFECT
+    useEffect(() => {
+        setNavbarTitle('Kategori Anggaran')
+        getKategoriAnggaranList()
+        .then(val => {
+            setData(val)
+            setDataCount(val.length)
+        })
         .catch(() => {
             setTextAlert({
                 variant: "danger",
@@ -113,19 +120,23 @@ const KategoriAnggaranList = ({setNavbarTitle}) => {
         .finally(() => {
             setIsLoading(false)
         });
-//USE EFFECT
-useEffect(() => {
-    setNavbarTitle('Kategori Anggaran')
-  }, [setNavbarTitle])
+    }, [setNavbarTitle])
 //DATA STATE
     const [data, setData] = useState([])
     const [isUpdate, setIsUpdate] = useState(false)
     const [updateIndex, setUpdateIndex] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
-//PAGINATION STATE
-    const [page, setPage] = useState(1);
-    const [itemPerPages, setItemPerPages] = useState(4);
-    const totalPage = 1
+//PAGE STATE
+    const [page, setPage] = useState(1)
+    const [dataCount, setDataCount] = useState(0)
+    const [dataLength, setDataLength] = useState(10)
+//PAGINATION
+    const lastData = page * dataLength;
+    const firstData = lastData - dataLength;
+    const currentPosts = data.slice(firstData, lastData);
+    const totalData = data.length
+    const totalPage = data? data.length/dataLength : 0
+    const paginate = pageNumber => setPage(pageNumber);
 //ALERT STATE
     const [alertShow, setAlertShow] = useState(false)
     const [textAlert, setTextAlert] = useState({
@@ -135,7 +146,6 @@ useEffect(() => {
     const [createShow, setCreateShow] = useState(false)
     const [updateShow, setUpdateShow] = useState(false)
     const [deleteIndex, setDeleteIndex] = useState([])
-//MODAL DELETE STATE
     const [deleteShow, setDeleteShow] = useState(false)
     const deleteMasuk = (id) => {
         setDeleteShow(true)
@@ -264,8 +274,6 @@ useEffect(() => {
                     ...datas, 
                     checked: !datas.checked
                 }
-            }else{
-                setIsLoading(true)
             }
             return datas
         })
@@ -275,13 +283,11 @@ useEffect(() => {
         })
         setAlertShow(true);
     } 
-//PAGINATION
-    const dataLength = data.length
 //REVERSE
-const reverse = (array) => {
-  return array.map((item,idx) => array[array.length-1-idx])
-  } 
-reverse(data)
+    const reverse = (array) => {
+    return array.map((item,idx) => array[array.length-1-idx])
+    } 
+    reverse(data)
 
   return (
     <div>
@@ -429,6 +435,7 @@ reverse(data)
                     text={textAlert.text}
                     onClose={() => setAlertShow(false)}
                 />
+
                 <Table>
                     <THead>
                         <Tr>
@@ -440,10 +447,10 @@ reverse(data)
                     </THead>
                     <TBody>
                         {
-                            reverse(data).map((datas, index) => {
+                            reverse(currentPosts).map((datas, index) => {
                                 return(
                                     <Tr key={index}>
-                                        <Td className='text-center'>{index + 1}</Td>
+                                        <Td className='text-center'>{TableNumber(page, dataLength, index)}</Td>
                                         <Td className='d-flex text-center'>
                                             <ButtonGroup size="sm" className="mr-1">
                                                 <UpdateButton onClick={() => updateData(datas.id)} />
@@ -465,20 +472,19 @@ reverse(data)
                         }
                     </TBody>
                 </Table>
+                
                 <Pagination 
-                    //Page Number
-                    dataNumber={page * itemPerPages - itemPerPages + 1} 
-                    //Data/Page
-                    dataPage={dataLength < itemPerPages ? dataLength : page * itemPerPages} 
-                    //Data Length
-                    dataCount={dataLength} 
-                    
+                    dataNumber={page * dataLength - dataLength + 1}
+                    dataPage={dataCount < dataLength ? totalData : page * dataLength}
+                    dataCount={dataCount} 
                     currentPage={page}
                     totalPage={totalPage}
-                    onPaginationChange={() => setPage(+1)}
-                    
-                    dataLength={itemPerPages}
-                    onDataLengthChange={(e) => setItemPerPages(e.target.value)}
+                    dataLength={dataLength}
+                    onPaginationChange={({selected}) => paginate(selected +1)}
+                    onDataLengthChange={(e) => {
+                        setDataLength(e.target.value)
+                        setPage(1)
+                    }}
                 />
             </div>
         }

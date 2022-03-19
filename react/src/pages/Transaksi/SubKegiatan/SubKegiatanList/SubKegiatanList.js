@@ -16,13 +16,7 @@ const SubKegiatanList = ({setNavbarTitle}) => {
             <DataStatus text='Tidak Ada Data' />
         )
     }, 900)
-})
-getDataJenisAnggaran()
-    .then(val => console.log(val))
-    .catch(<DataStatus text='Tidak Ada Data' />)
-    .finally(() => {
-        setIsLoading(false)
-});
+    })
 //STATE
   const [isLoading, setIsLoading] = useState(true)
 //USE HISTORY
@@ -30,6 +24,12 @@ getDataJenisAnggaran()
 //USE EFFECT
   useEffect(() => {
     setNavbarTitle('List Sub Kegiatan')
+    getDataJenisAnggaran()
+    .then(val => console.log(val))
+    .catch(<DataStatus text='Tidak Ada Data' />)
+    .finally(() => {
+        setIsLoading(false)
+    })
   }, [setNavbarTitle])
 
   return (

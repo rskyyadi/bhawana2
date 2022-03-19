@@ -4,6 +4,7 @@ import {nanoid} from 'nanoid'
 import {Formik} from 'formik'
 import * as Yup from 'yup'
 import {Modal} from 'react-bootstrap'
+import { TableNumber } from 'utilities'
 import {
     Th, 
     Tr, 
@@ -89,31 +90,41 @@ const SubKelompokAnggaranList = ({setNavbarTitle}) => {
             )
         }, 900)
     })
-    getSubKelompokAnggaranList()
-        .then(val => {setData(val)})
-        .catch(() => {
-            setTextAlert({
-                variant: "danger",
-                text: "Data gagal dimuat",
-            });
-            setAlertShow(true);
-        })
-        .finally(() => {
-            setIsLoading(false)
-    });
 //USE EFFECT
 useEffect(() => {
     setNavbarTitle('Sub Kelompok Anggaran')
+    getSubKelompokAnggaranList()
+    .then(val => {
+        setData(val)
+        setDataCount(val.length)
+    })
+    .catch(() => {
+        setTextAlert({
+            variant: "danger",
+            text: "Data gagal dimuat",
+        });
+        setAlertShow(true);
+    })
+    .finally(() => {
+        setIsLoading(false)
+});
   }, [setNavbarTitle])
 //DATA STATE
     const [data, setData] = useState([])
     const [isUpdate, setIsUpdate] = useState(false)
     const [updateIndex, setUpdateIndex] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
-//PAGINATION STATE
-    const [page, setPage] = useState(1);
-    const totalPage = 1
-    const [itemPerPages, setItemPerPages] = useState(4);
+//PAGE STATE
+    const [page, setPage] = useState(1)
+    const [dataCount, setDataCount] = useState(0)
+    const [dataLength, setDataLength] = useState(10)
+//PAGINATION
+    const lastData = page * dataLength;
+    const firstData = lastData - dataLength;
+    const currentPosts = data.slice(firstData, lastData);
+    const totalData = data.length
+    const totalPage = data? data.length/dataLength : 0
+    const paginate = pageNumber => setPage(pageNumber);
 //ALERT STATE
     const [alertShow, setAlertShow] = useState(false)
     const [textAlert, setTextAlert] = useState({
@@ -123,7 +134,6 @@ useEffect(() => {
     const [createShow, setCreateShow] = useState(false)
     const [updateShow, setUpdateShow] = useState(false)
     const [deleteIndex, setDeleteIndex] = useState([])
-//MODAL DELETE STATE
     const [deleteShow, setDeleteShow] = useState(false)
     const deleteMasuk = (id) => {
         setDeleteShow(true)
@@ -252,8 +262,6 @@ useEffect(() => {
                     ...datas, 
                     checked: !datas.checked
                 }
-            }else{
-                setIsLoading(true)
             }
             return datas
         })
@@ -263,8 +271,6 @@ useEffect(() => {
         })
         setAlertShow(true);
     } 
-//PAGINATION
-    const dataLength = data.length
 //REVERSE
     const reverse = (array) => {
     return array.map((item,idx) => array[array.length-1-idx])
@@ -285,7 +291,11 @@ useEffect(() => {
             isLoading === true
             ? <DataStatus loading={true} text='Memuat Data...' />
             : <div>
-                <CreateModal title={title} show={createShow} onHide={() => setCreateShow(false)}>
+                <CreateModal 
+                    title={title} 
+                    show={createShow} 
+                    onHide={() => setCreateShow(false)}>
+
                     <Formik
                         initialValues={formValues}
                         validationSchema={formValidation}
@@ -340,7 +350,11 @@ useEffect(() => {
                         )}
                     </Formik>
                 </CreateModal>
-                <UpdateModal title={title} show={updateShow} onHide={() => setUpdateShow(false)}>
+                <UpdateModal 
+                    title={title} 
+                    show={updateShow} 
+                    onHide={() => setUpdateShow(false)}>
+
                     <Formik
                         initialValues={formValues}
                         validationSchema={formValidation}
@@ -398,11 +412,10 @@ useEffect(() => {
                 <DeleteModal 
                     onConfirm={() => deleteSubmit(deleteIndex)} 
                     title={title} show={deleteShow} 
-                    onHide={() => setDeleteShow(false)}
-                >
+                    onHide={() => setDeleteShow(false)}>
                     <span>Nama Jenis Anggaran : {create.nama_jenis_anggaran}</span>
                 </DeleteModal>
-
+                
                 <Alert
                     show={alertShow}
                     showCloseButton={true}
@@ -410,6 +423,7 @@ useEffect(() => {
                     text={textAlert.text}
                     onClose={() => setAlertShow(false)}
                 />
+
                 <Table>
                     <THead>
                         <Tr>
@@ -423,10 +437,10 @@ useEffect(() => {
                     </THead>
                     <TBody>
                         {
-                            reverse(data).map((datas, index) => {
+                            reverse(currentPosts).map((datas, index) => {
                                 return(
                                     <Tr key={index}>
-                                        <Td className='text-center'>{index + 1}</Td>
+                                        <Td className='text-center'>{TableNumber(page, dataLength, index)}</Td>
                                         <Td className='d-flex text-center'>
                                             <ButtonGroup size="sm" className="mr-1">
                                                 <UpdateButton onClick={() => updateData(datas.id)} />
@@ -450,20 +464,19 @@ useEffect(() => {
                         }
                     </TBody>
                 </Table>
+
                 <Pagination 
-                    //Page Number
-                    dataNumber={page * itemPerPages - itemPerPages + 1} 
-                    //Data/Page
-                    dataPage={dataLength < itemPerPages ? dataLength : page * itemPerPages} 
-                    //Data Length
-                    dataCount={dataLength} 
-                    
+                    dataNumber={page * dataLength - dataLength + 1}
+                    dataPage={dataCount < dataLength ? totalData : page * dataLength}
+                    dataCount={dataCount} 
                     currentPage={page}
                     totalPage={totalPage}
-                    onPaginationChange={() => setPage(+1)}
-                    
-                    dataLength={itemPerPages}
-                    onDataLengthChange={(e) => setItemPerPages(e.target.value)}
+                    dataLength={dataLength}
+                    onPaginationChange={({selected}) => paginate(selected +1)}
+                    onDataLengthChange={(e) => {
+                    setDataLength(e.target.value)
+                    setPage(1)
+                    }}
                 />
             </div>
         }
