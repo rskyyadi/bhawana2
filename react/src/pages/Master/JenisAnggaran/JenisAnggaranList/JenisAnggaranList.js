@@ -103,7 +103,7 @@ const JenisAnggaranList = ({setNavbarTitle}) => {
         })
         .finally(() => {
             setIsLoading(false)
-        });
+        })
     }, [setNavbarTitle])
 //PAGINATION
     const totalData = data.length
@@ -235,7 +235,8 @@ const JenisAnggaranList = ({setNavbarTitle}) => {
         setData(isToggle)
         setAlertShow(true)
         setTextAlert({
-            text: "Ubah status data berhasil",
+            variant:'primary',
+            text: "Ubah status data berhasil"
         })
     }
 
