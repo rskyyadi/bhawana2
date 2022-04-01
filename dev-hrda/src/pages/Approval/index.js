@@ -4,7 +4,7 @@ import {
 } from './ApprovalProgram'
 import {
   MainApprovalKegiatan,
-  DetailKegiatan
+  ApprovalDetailKegiatan
 } from './ApprovalKegiatan'
 import {
   MainApprovalSubKegiatan,
@@ -24,7 +24,7 @@ export {
   DetailProgram,
 
   MainApprovalKegiatan,
-  DetailKegiatan,
+  ApprovalDetailKegiatan,
 
   MainApprovalSubKegiatan,
   DetailSubKegiatan,

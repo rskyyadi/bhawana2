@@ -1,4 +1,4 @@
 import MainApprovalKegiatan from './MainApprovalKegiatan'
-import DetailKegiatan from './DetailKegiatan'
+import ApprovalDetailKegiatan from './ApprovalDetailKegiatan'
 
-export { MainApprovalKegiatan, DetailKegiatan }
+export { MainApprovalKegiatan, ApprovalDetailKegiatan }

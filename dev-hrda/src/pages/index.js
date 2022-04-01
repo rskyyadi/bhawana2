@@ -10,7 +10,7 @@ import {
   DetailProgram,
 
   MainApprovalKegiatan,
-  DetailKegiatan,
+  ApprovalDetailKegiatan,
 
   MainApprovalSubKegiatan,
   DetailSubKegiatan,
@@ -28,7 +28,7 @@ export {
   DetailProgram,
 
   MainApprovalKegiatan,
-  DetailKegiatan,
+  ApprovalDetailKegiatan,
 
   MainApprovalSubKegiatan,
   DetailSubKegiatan,

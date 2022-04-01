@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from "react"
 import { useHistory, useLocation } from "react-router-dom"
-import * as Yup from "yup"
 import { Row, Col, Card } from "react-bootstrap"
 import { DateConvert } from "utilities"
 import { Formik } from "formik"
+import * as Yup from "yup"
 import {
   Alert,
+  TextArea,
   DataStatus,
   BackButton,
-  TextArea,
   ActionButton,
   InfoItemVertical
 } from "components"
 
 const DetailProgram = ({ setNavbarTitle }) => {
+//DATA
+  const [dataDetail, setDataDetail] = useState([])
 //USE HISTORY
   const history = useHistory()
 //USE LOCATION
@@ -30,8 +32,87 @@ const DetailProgram = ({ setNavbarTitle }) => {
   const [alertShow, setAlertShow] = useState(false)
   const [textAlert, setTextAlert] = useState({
       variant:'primary',
-      text:''
+      text:'Success'
   })
+//FAKE API
+  const getDetailData = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve({
+          data_nama_program: state.data.nama_program,
+          data_tgl_program: state.data.tgl_program,
+          data_nomor_program: state.data.nomor_program,
+          data_unit_organisasi: state.data.unit_organisasi,
+          data_penanggung_jawab: state.data.penanggung_jawab_program,
+          data_periode_mulai: state.data.periode_mulai,
+          data_periode_selesai: state.data.periode_selesai,
+          data_deskripsi: state.data.deskripsi_program
+        })
+        reject(
+            <DataStatus text='Tidak Ada Data' />
+        )
+    }, 900)
+  })
+  useEffect(() => {
+    getDetailData()
+    .then(val => {
+      setDataDetail(val)
+      // setDataCount(val.length)
+    })
+    .catch(() => {
+        setTextAlert({
+            variant: "danger",
+            text: "Data gagal dimuat",
+        });
+        setAlertShow(true);
+    })
+    .finally(() => {
+        setIsLoading(false)
+    })
+  }, [])
+  
+//DETAIL DATA
+  const DetailData = () => {
+    return (
+      <Row>
+        <Col md>
+          <InfoItemVertical 
+            label="Nama. Program"
+            text={dataDetail.data_nama_program ?? '-'}
+          />
+          <InfoItemVertical 
+            label="Tgl. Program"
+            text={dataDetail.data_tgl_program ? DateConvert(new Date(dataDetail.data_tgl_program)).detail : '-'}
+          />
+          <InfoItemVertical 
+            label="No. Program"
+            text={dataDetail.data_nomor_program ?? '-'}
+          />
+          <InfoItemVertical 
+            label="Unit Organisasi"
+            text={dataDetail.data_unit_organisasi ?? '-'}
+          />
+        </Col>
+        <Col md>
+            <InfoItemVertical 
+            label="Nama Penanggung Jawab"
+            text={dataDetail.data_penanggung_jawab ?? '-'}
+          />
+          <InfoItemVertical 
+            label="Periode Mulai"
+            text={dataDetail.data_periode_mulai ? `${DateConvert(new Date(dataDetail.data_periode_mulai)).detailMonth} ${DateConvert(new Date(dataDetail.data_periode_mulai)).defaultYear}` : '-'}
+          />
+          <InfoItemVertical 
+            label="Periode Selesai"
+            text={dataDetail.data_periode_selesai ? `${DateConvert(new Date(dataDetail.data_periode_selesai)).detailMonth} ${DateConvert(new Date(dataDetail.data_periode_selesai)).defaultYear}` : '-'}
+          />
+          <InfoItemVertical 
+            label="Deskripsi"
+            text={dataDetail.data_deskripsi ?? '-'}
+          />
+        </Col>
+      </Row>
+    )
+  }
 //APPROVAL PROGRAM
   const ApprovalProgram = ({ values, handleChange, validateForm, errors, dirty }) => {
     return (
@@ -59,6 +140,8 @@ const DetailProgram = ({ setNavbarTitle }) => {
                     variant="danger"
                     className="m-1"
                     onClick={() => {
+                      //Mengembalikan true jika nilai tidak sama dari nilai awal, false jika tidak. 
+                      //Dirty - Properti yang dihitung hanya-baca dan tidak boleh dimutasi secara langsung.
                       if (dirty) {
                         setModalConfig({
                           show: true,
@@ -108,49 +191,6 @@ const DetailProgram = ({ setNavbarTitle }) => {
       </Card>
     )
   }
-//DETAIL DATA
-  const DetailData = () => {
-    return (
-      <Row>
-        <Col md>
-          <InfoItemVertical 
-            label="Nama. Program"
-            text={state.data.nama_program ?? '-'}
-          />
-          <InfoItemVertical 
-            label="Tgl. Program"
-            text={state.data.tgl_program ? DateConvert(new Date(state.data.tgl_program)).detail : '-'}
-          />
-          <InfoItemVertical 
-            label="No. Program"
-            text={state.data.nomor_program ?? '-'}
-          />
-          <InfoItemVertical 
-            label="Unit Organisasi"
-            text={state.data.unit_organisasi ?? '-'}
-          />
-        </Col>
-        <Col md>
-            <InfoItemVertical 
-            label="Nama Penanggung Jawab"
-            text={state.data.penanggung_jawab_program ?? '-'}
-          />
-          <InfoItemVertical 
-            label="Periode Mulai"
-            text={state.data.periode_mulai ? `${DateConvert(new Date(state.data.periode_mulai)).detailMonth} ${DateConvert(new Date(state.data.periode_mulai)).defaultYear}` : '-'}
-          />
-          <InfoItemVertical 
-            label="Periode Selesai"
-            text={state.data.periode_selesai ? `${DateConvert(new Date(state.data.periode_selesai)).detailMonth} ${DateConvert(new Date(state.data.periode_selesai)).defaultYear}` : '-'}
-          />
-          <InfoItemVertical 
-            label="Deskripsi"
-            text={state.data.deskripsi_program ?? '-'}
-          />
-        </Col>
-      </Row>
-    )
-  }
 //USE EFFECT
   useEffect(() => {
     setNavbarTitle("Approval Program")
@@ -170,11 +210,11 @@ const DetailProgram = ({ setNavbarTitle }) => {
           <Alert
             show={alertShow}
             showCloseButton={true}
-            variant='primary'
+            variant={textAlert.variant}
             text={textAlert.text}
             onClose={() => setAlertShow(false)}
           />
-          {isLoading === false
+          {isLoading
             ? <DataStatus loading={true} text="Memuat data . . ." /> 
             : <DetailData />
           }

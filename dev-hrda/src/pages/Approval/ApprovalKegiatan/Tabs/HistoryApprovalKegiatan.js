@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { useHistory } from "react-router-dom"
 import { Row, Col } from "react-bootstrap"
-// import { PageNumber as TableNumber } from "utilities"
+import { TableNumber } from "utilities"
 import {
     CRUDLayout,
     Alert,
@@ -19,7 +19,7 @@ import {
     Td,
 } from "components"
 
-const ApprovalKegiatan = () => {
+const HistoryApprovalKegiatan = () => {
 //DATA STATE
     const [data, setData] = useState([])
     const [isLoading, setIsLoading] = useState(true)
@@ -34,7 +34,7 @@ const ApprovalKegiatan = () => {
         text:''
     })
 //FAKE API
-    const getApprovalKegiatan = () => new Promise((resolve, reject) => {
+    const getHistoryApprovalKegiatan = () => new Promise((resolve, reject) => {
         setTimeout(() => {
             resolve([])
             reject(
@@ -44,7 +44,7 @@ const ApprovalKegiatan = () => {
     })
 //USE EFFECT
     useEffect(() => {
-        getApprovalKegiatan()
+        getHistoryApprovalKegiatan()
         .then(val => {
             setData(val)
             setDataCount(val.length)
@@ -91,8 +91,7 @@ const ApprovalKegiatan = () => {
                         {currentPosts.map((datas, index) => (
                             <Tr key={index}>
                                 <TdFixed>
-                                    {/* {TableNumber(page, dataLength, index)} */}
-                                    {index +1}
+                                    {TableNumber(page, dataLength, index)}
                                 </TdFixed>
                                 <Td>{datas.pembuat_pengajuan ? datas.pembuat_pengajuan : "-"}</Td>
                                 <Td>{datas.jabatan_pembuat_pengajuan ? datas.jabatan_pembuat_pengajuan : "-"}</Td>
@@ -167,4 +166,4 @@ const ApprovalKegiatan = () => {
     );
 };
 
-export default ApprovalKegiatan
+export default HistoryApprovalKegiatan

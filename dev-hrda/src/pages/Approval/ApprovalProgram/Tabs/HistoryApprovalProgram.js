@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { useHistory } from "react-router-dom"
 import { Row, Col } from "react-bootstrap"
-// import { PageNumber as TableNumber } from "utilities"
+import { TableNumber } from "utilities"
 import {
     CRUDLayout,
     Alert,
@@ -134,8 +134,7 @@ const HistoryApprovalProgram = () => {
                         {currentPosts.map((datas, index) => (
                             <Tr key={index}>
                                 <TdFixed>
-                                    {/* {TableNumber(page, dataLength, index)} */}
-                                    {index +1}
+                                    {TableNumber(page, dataLength, index)}
                                 </TdFixed>
                                 <Td>{datas.pembuat_pengajuan ? datas.pembuat_pengajuan : "-"}</Td>
                                 <Td>{datas.jabatan_pembuat_pengajuan ? datas.jabatan_pembuat_pengajuan : "-"}</Td>

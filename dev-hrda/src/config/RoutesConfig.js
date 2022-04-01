@@ -4,7 +4,7 @@ import {
   DetailProgram,
 
   MainApprovalKegiatan,
-  DetailKegiatan,
+  ApprovalDetailKegiatan,
 
   MainApprovalSubKegiatan,
   DetailSubKegiatan,
@@ -49,7 +49,7 @@ export default [
   {
     exact: true,
     path: '/human-resource/approval/kegiatan/detail/:id',
-    page: DetailKegiatan,
+    page: ApprovalDetailKegiatan,
     hak: ['ANG', 'ANG_TRN_PRO']
   },
   {
